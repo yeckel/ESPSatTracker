@@ -1,0 +1,6 @@
+# IDEs
+.vscode
+.idea
+CMakeLists.txt.user
+platformio.pro.user
+
