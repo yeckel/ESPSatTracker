@@ -76,6 +76,9 @@ void calibrateAzimuthSteps();
 void azInterrupt();
 void elInterrupt();
 
+void elEndstopInterrupt();
+void azEndstopInterrupt();
+
 int getAzDirection();
 int getElDirection();
 
@@ -135,6 +138,9 @@ void setup()
 
     attachInterrupt(EL_PUL, elInterrupt, RISING);
     attachInterrupt(AZ_PUL, azInterrupt, RISING);
+
+    attachInterrupt(EL_ENDSTOP, elEndstopInterrupt, FALLING);
+    attachInterrupt(AZ_ENDSTOP, azEndstopInterrupt, FALLING);
 }
 
 void loop()
@@ -347,7 +353,7 @@ int getAzimuth()
 
 void setElevation(int elevation)
 {
-    if(elevation > 90)
+    if(elevation > 180)
     {
         return;
     }
@@ -365,21 +371,43 @@ void setAzimuth(int azimuth)
     moveToAzimuth();
 }
 
+void startELdown()
+{
+    digitalWrite(EL_DIR, HIGH);
+    ledcWrite(CHANNEL_EL, PWM_DUTY_CYCLE_ON);
+}
+
+void startELUp()
+{
+    digitalWrite(EL_DIR, LOW);
+    ledcWrite(CHANNEL_EL, PWM_DUTY_CYCLE_ON);
+}
+
 void moveToElevation()
 {
     Serial << __FUNCTION__ << " desired:" << m_desiredElevationSteps << " is:" << m_elevationSteps << endl;
     if(m_desiredElevationSteps < m_elevationSteps)
     {
-        digitalWrite(EL_DIR, HIGH);
-        ledcWrite(CHANNEL_EL, PWM_DUTY_CYCLE_ON);
+        startELdown();
         m_elDirection = -1;
     }
     else if(m_desiredElevationSteps > m_elevationSteps)
     {
-        digitalWrite(EL_DIR, LOW);
-        ledcWrite(CHANNEL_EL, PWM_DUTY_CYCLE_ON);
+        startELUp();
         m_elDirection = +1;
     }
+}
+
+void startAzRight()
+{
+    ledcWrite(CHANNEL_AZ, PWM_DUTY_CYCLE_ON);
+    digitalWrite(AZ_DIR, LOW);
+}
+
+void startAzLeft()
+{
+    ledcWrite(CHANNEL_AZ, PWM_DUTY_CYCLE_ON);
+    digitalWrite(AZ_DIR, HIGH);
 }
 
 void moveToAzimuth()
@@ -387,21 +415,19 @@ void moveToAzimuth()
     Serial << __FUNCTION__ << " desired:" << m_desiredAzimuthSteps << " is:" << m_azimuthSteps << endl;
     if(m_desiredAzimuthSteps < m_azimuthSteps)
     {
-        ledcWrite(CHANNEL_AZ, PWM_DUTY_CYCLE_ON);
-        digitalWrite(AZ_DIR, HIGH);
+        startAzLeft();
         m_azDirection = -1;
     }
     else if(m_desiredAzimuthSteps > m_azimuthSteps)
     {
-        ledcWrite(CHANNEL_AZ, PWM_DUTY_CYCLE_ON);
-        digitalWrite(AZ_DIR, LOW);
+        startAzRight();
         m_azDirection = +1;
     }
 }
 
 void stopElevationMoving()
 {
-    Serial << __FUNCTION__;
+    Serial << __FUNCTION__ << endl;
     m_elDirection = 0;
     ledcWrite(CHANNEL_EL, PWM_DUTY_CYCLE_OFF);
 }
@@ -409,7 +435,7 @@ void stopElevationMoving()
 // Function to stop the AZ axis
 void stopAzimuthMoving()
 {
-    Serial << __FUNCTION__;
+    Serial << __FUNCTION__ << endl;
     m_azDirection = 0;
     ledcWrite(CHANNEL_AZ, PWM_DUTY_CYCLE_OFF);
 }
@@ -417,28 +443,30 @@ void stopAzimuthMoving()
 // Function to zero out the EL axis
 void findElevationZero()
 {
-    Serial << __FUNCTION__;
-    Serial.println("Calibration on EL axis done.");
+    m_desiredElevationSteps = 0xEFFF;
+    Serial << __FUNCTION__ << endl;
+    startELdown();
 }
 
 // Function to zero out the AZ axis
 void findAzimuthZero()
 {
-    Serial << __FUNCTION__;
-    Serial.println("Calibration on AZ axis done.");
+    Serial << __FUNCTION__ << endl;
+    m_desiredAzimuthSteps = 0xEFFF;
+    startAzRight();
 }
 
 //Shall run between two endstops, but i have just one on 0
 void calibrateStepsOnElevation()
 {
-    Serial << __FUNCTION__;
+    Serial << __FUNCTION__ << endl;
     //calibrate steps
 }
 
 //Shall run one complete round and calculate steps
 void calibrateAzimuthSteps()
 {
-    Serial << __FUNCTION__;
+    Serial << __FUNCTION__ << endl;
     //calibrate steps
 }
 
@@ -447,4 +475,20 @@ void setStepFrequency(int frequencyHz)
     m_step_frequency = frequencyHz;
     ledcWriteTone(CHANNEL_EL, m_step_frequency);
     ledcWriteTone(CHANNEL_AZ, m_step_frequency);
+}
+
+void elEndstopInterrupt()
+{
+    m_elevationSteps = 0;
+    m_desiredElevationSteps = 0;
+    Serial.println("Reached Elevation endstop!");
+    stopElevationMoving();
+}
+
+void azEndstopInterrupt()
+{
+    m_azimuthSteps = 0;
+    m_desiredAzimuthSteps = 0;
+    Serial.println("Reached Azimuth endstop!");
+    stopAzimuthMoving();
 }
