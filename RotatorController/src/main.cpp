@@ -32,16 +32,17 @@
 // Z              - Toggle north / south centered mode
 // H              - Help
 
-#define EL_ENDSTOP 39 //3                  // Endstop Signal EL
-#define AZ_ENDSTOP 14 //4                  // Endstop Signal AZ
+#define EL_ENDSTOP 25
+#define AZ_ENDSTOP 26
 
-#define ENABLE_STEPPER 26 //2                  // Enable Steppers (off = Steppers enabled)
+#define AZ_ENABLE 16
+#define EL_ENABLE 2
 // Pins Stepper EL
-#define EL_PUL 16 //6                   // Pulse pin
-#define EL_DIR 25 //7                   // Direction pin
+#define EL_PUL 13
+#define EL_DIR 12
 // Pins Stepper AZ
-#define AZ_PUL 15 //8                   // Pulse pin
-#define AZ_DIR 13 //9                   // Direction pin
+#define AZ_PUL 15
+#define AZ_DIR 14
 
 void drawDisplay();
 void serialEventBT();
@@ -117,7 +118,8 @@ void setup()
     display.flipScreenVertically();
     display.setTextAlignment(TEXT_ALIGN_LEFT);
 
-    pinMode(ENABLE_STEPPER, OUTPUT);
+    pinMode(AZ_ENABLE, OUTPUT);
+    pinMode(EL_ENABLE, OUTPUT);
 
     pinMode(EL_DIR, OUTPUT);
     pinMode(AZ_DIR, OUTPUT);
