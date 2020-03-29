@@ -101,6 +101,9 @@ static constexpr unsigned PWM_DUTY_CYCLE_OFF{0};
 static constexpr unsigned CHANNEL_EL{0};
 static constexpr unsigned CHANNEL_AZ{1};
 
+volatile bool justCalibratedAz{false};
+volatile bool justCalibratedEl{false};
+
 unsigned m_step_frequency{2500};
 unsigned m_desiredAzimuthSteps{0}, m_desiredElevationSteps{0};
 
@@ -198,6 +201,8 @@ void handleSerialCommand(String serialIn)
         ESP_BT.print("\r\n");
         stopElevationMoving();
         stopAzimuthMoving();
+        justCalibratedAz = false;
+        justCalibratedEl = false;
         return;
     }
     if(serialIn == "B")                                   // Report elevation (el)
@@ -316,6 +321,7 @@ void azInterrupt()
     m_azimuthSteps += m_azDirection;
     if(m_azimuthSteps == m_desiredAzimuthSteps)
     {
+        justCalibratedAz = false;
         m_azDirection = 0;
         ledcWrite(CHANNEL_AZ, PWM_DUTY_CYCLE_OFF);
     }
@@ -327,6 +333,7 @@ void elInterrupt()
     m_elevationSteps += m_elDirection;
     if(m_elevationSteps == m_desiredElevationSteps)
     {
+        justCalibratedEl = false;
         m_elDirection = 0;
         ledcWrite(CHANNEL_EL, PWM_DUTY_CYCLE_OFF);
     }
@@ -479,16 +486,22 @@ void setStepFrequency(int frequencyHz)
 
 void elEndstopInterrupt()
 {
-    m_elevationSteps = 0;
-    m_desiredElevationSteps = 0;
-    Serial.println("Reached Elevation endstop!");
-    stopElevationMoving();
+    if(!justCalibratedEl)
+    {
+        m_elevationSteps = 0;
+        Serial.println("Reached Elevation endstop!");
+        stopElevationMoving();
+    }
+    justCalibratedEl = true;
 }
 
 void azEndstopInterrupt()
 {
-    m_azimuthSteps = 0;
-    m_desiredAzimuthSteps = 0;
-    Serial.println("Reached Azimuth endstop!");
-    stopAzimuthMoving();
+    if(!justCalibratedAz)
+    {
+        m_azimuthSteps = 0;
+        Serial.println("Reached Azimuth endstop!");
+        stopAzimuthMoving();
+    }
+    justCalibratedAz = true;
 }
