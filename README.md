@@ -1,8 +1,8 @@
 # ESPSatTracker (work still in progress, ideas wellcommend)
 
 This project is intended for tracking HAM radio satellites using stock available cheep components and 3D printer. 
-* Antena is 5+8 elem Yagi from dk7zb (dk7zb)[https://www.qsl.net/dk7zb/Duoband/5+8_2m-70cm.htm]
-* Rotator was heavily inspired from (tysonpower.de)[https://tysonpower.de/blog/diy-az-el-antenna-rotator-for-under-150]
+* Antena is 5+8 elem Yagi from [dk7zb](https://www.qsl.net/dk7zb/Duoband/5+8_2m-70cm.htm)
+* Rotator was heavily inspired from [tysonpower.de](https://tysonpower.de/blog/diy-az-el-antenna-rotator-for-under-150)
 
 ## Features
 It shall be remotely operated (Bluetooth), it shall bear heavier antennas (preparing for moonscating), it shall be portable, it shall bring fun.
@@ -22,8 +22,9 @@ It shall be remotely operated (Bluetooth), it shall bear heavier antennas (prepa
 
 ## Software used
 * OpenSCAD & Slic3r & RepetierHost for 3d modelling and printing
-* (platformio) [https://platformio.org] for SW build
+* [platformio] (https://platformio.org) for SW build
 * gpredict for satellite tracking
+* STL and scad projects and fotos are at [thingiverse](https://www.thingiverse.com/thing:4246844)
 
 ## Build
 ### Dependencies
