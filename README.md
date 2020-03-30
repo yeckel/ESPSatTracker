@@ -22,7 +22,7 @@ It shall be remotely operated (Bluetooth), it shall bear heavier antennas (prepa
 
 ## Software used
 * OpenSCAD & Slic3r & RepetierHost for 3d modelling and printing
-* [platformio] (https://platformio.org) for SW build
+* [platformio](https://platformio.org) for SW build
 * gpredict for satellite tracking
 * STL and scad projects and fotos are at [thingiverse](https://www.thingiverse.com/thing:4246844)
 
