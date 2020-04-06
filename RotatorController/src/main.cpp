@@ -76,9 +76,6 @@ void calibrateAzimuthSteps();
 void azInterrupt();
 void elInterrupt();
 
-void elEndstopInterrupt();
-void azEndstopInterrupt();
-
 int getAzDirection();
 int getElDirection();
 
@@ -141,9 +138,6 @@ void setup()
 
     attachInterrupt(EL_PUL, elInterrupt, RISING);
     attachInterrupt(AZ_PUL, azInterrupt, RISING);
-
-    attachInterrupt(EL_ENDSTOP, elEndstopInterrupt, FALLING);
-    attachInterrupt(AZ_ENDSTOP, azEndstopInterrupt, FALLING);
 }
 
 void loop()
@@ -370,7 +364,7 @@ void setElevation(int elevation)
 
 void setAzimuth(int azimuth)
 {
-    if(azimuth > 360)
+    if(azimuth > 450)
     {
         return;
     }
@@ -450,17 +444,13 @@ void stopAzimuthMoving()
 // Function to zero out the EL axis
 void findElevationZero()
 {
-    m_desiredElevationSteps = 0xEFFF;
     Serial << __FUNCTION__ << endl;
-    startELdown();
 }
 
 // Function to zero out the AZ axis
 void findAzimuthZero()
 {
     Serial << __FUNCTION__ << endl;
-    m_desiredAzimuthSteps = 0xEFFF;
-    startAzRight();
 }
 
 //Shall run between two endstops, but i have just one on 0
@@ -482,26 +472,4 @@ void setStepFrequency(int frequencyHz)
     m_step_frequency = frequencyHz;
     ledcWriteTone(CHANNEL_EL, m_step_frequency);
     ledcWriteTone(CHANNEL_AZ, m_step_frequency);
-}
-
-void elEndstopInterrupt()
-{
-    if(!justCalibratedEl)
-    {
-        m_elevationSteps = 0;
-        Serial.println("Reached Elevation endstop!");
-        stopElevationMoving();
-    }
-    justCalibratedEl = true;
-}
-
-void azEndstopInterrupt()
-{
-    if(!justCalibratedAz)
-    {
-        m_azimuthSteps = 0;
-        Serial.println("Reached Azimuth endstop!");
-        stopAzimuthMoving();
-    }
-    justCalibratedAz = true;
 }
